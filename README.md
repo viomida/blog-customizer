@@ -32,7 +32,7 @@
 
 <div align="center">
   
-![Демонстрация работы](pic/picPIC.)
+![Демонстрация работы](pic/picPIC.png)
 
 </div>
 
