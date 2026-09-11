@@ -2,13 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
 import { Select } from 'src/ui/select/Select';
-import { ColorPicker } from 'src/ui/color-picker/ColorPicker';
+import { RadioGroup } from 'src/ui/radio-group/RadioGroup';
 import { Separator } from 'src/ui/separator/Separator';
+import { Text } from 'src/ui/text';
 
 import {
 	fontFamilyOptions,
 	fontSizeOptions,
+	fontColors,
 	contentWidthArr,
+	backgroundColors,
 	defaultArticleState,
 	OptionType,
 	ArticleStateType,
@@ -17,38 +20,33 @@ import {
 import styles from './ArticleParamsForm.module.scss';
 
 interface ArticleParamsFormProps {
-	isOpen: boolean;
-	onToggle: () => void;
 	onApply: (state: ArticleStateType) => void;
 	onReset: () => void;
 	currentState: ArticleStateType;
 }
 
 export const ArticleParamsForm = ({
-	isOpen,
-	onToggle,
 	onApply,
 	onReset,
 	currentState,
 }: ArticleParamsFormProps) => {
+	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const [formState, setFormState] = useState<ArticleStateType>(currentState);
-	const formRef = useRef<HTMLFormElement>(null);
-	const sidebarRef = useRef<HTMLDivElement>(null);
+	const sidebarRef = useRef<HTMLElement>(null);
 
 	useEffect(() => {
 		setFormState(currentState);
 	}, [currentState]);
 
-	// Закрытие сайдбара при клике вне
 	useEffect(() => {
-		if (!isOpen) return;
+		if (!isSidebarOpen) return;
 
 		const handleOutsideClick = (event: MouseEvent) => {
 			if (
 				sidebarRef.current &&
 				!sidebarRef.current.contains(event.target as Node)
 			) {
-				onToggle();
+				setIsSidebarOpen(false);
 			}
 		};
 
@@ -56,11 +54,16 @@ export const ArticleParamsForm = ({
 		return () => {
 			document.removeEventListener('mousedown', handleOutsideClick);
 		};
-	}, [isOpen, onToggle]);
+	}, [isSidebarOpen]);
+
+	const toggleSidebar = () => {
+		setIsSidebarOpen(!isSidebarOpen);
+	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		onApply(formState);
+		setIsSidebarOpen(false);
 	};
 
 	const handleReset = () => {
@@ -80,12 +83,17 @@ export const ArticleParamsForm = ({
 
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={onToggle} />
+			<ArrowButton isOpen={isSidebarOpen} onClick={toggleSidebar} />
 			<aside
 				ref={sidebarRef}
-				className={`${styles.container} ${isOpen ? styles.open : ''}`}>
-				<form className={styles.form} onSubmit={handleSubmit} ref={formRef}>
+				className={`${styles.container} ${isSidebarOpen ? styles.open : ''}`}>
+				<form className={styles.form} onSubmit={handleSubmit}>
+					<Text size={31} weight={800} uppercase>
+						Задайте параметры
+					</Text>
+
 					<div className={styles.formContent}>
+						{/* Шрифт */}
 						<Select
 							title='Шрифт'
 							options={fontFamilyOptions}
@@ -95,31 +103,39 @@ export const ArticleParamsForm = ({
 							}
 						/>
 
-						<Select
+						{/* Размер шрифта */}
+						<RadioGroup
+							name='fontSize'
 							title='Размер шрифта'
 							options={fontSizeOptions}
 							selected={formState.fontSizeOption}
 							onChange={(option) => handleFieldChange('fontSizeOption', option)}
 						/>
 
-						<Separator />
-
-						<ColorPicker
+						{/* Цвет шрифта */}
+						<Select
 							title='Цвет шрифта'
+							options={fontColors}
 							selected={formState.fontColor}
 							onChange={(option) => handleFieldChange('fontColor', option)}
 						/>
 
-						<ColorPicker
+						{/* ✅ Линия — обёрнута в div для изменения цвета через opacity */}
+						<div className={styles.separatorWrapper}>
+							<Separator />
+						</div>
+
+						{/* Цвет фона */}
+						<Select
 							title='Цвет фона'
+							options={backgroundColors}
 							selected={formState.backgroundColor}
 							onChange={(option) =>
 								handleFieldChange('backgroundColor', option)
 							}
 						/>
 
-						<Separator />
-
+						{/* Ширина контента */}
 						<Select
 							title='Ширина контента'
 							options={contentWidthArr}

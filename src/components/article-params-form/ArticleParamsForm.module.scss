@@ -28,7 +28,7 @@
 	display: flex;
 	flex: 1;
 	flex-direction: column;
-	gap: 24px;
+	gap: 50px; /* ← УВЕЛИЧЕНО с 24px до 50px */
 	padding: 0 0 20px;
 }
 
@@ -41,4 +41,8 @@
 	button {
 		flex: 1;
 	}
+}
+
+.separatorWrapper {
+	opacity: 0.2;
 }
